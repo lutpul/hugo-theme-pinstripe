@@ -1,0 +1,54 @@
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cccccc">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Title }}{{ end }}</title>
+{{- $desc := .Description | default site.Params.description }}
+{{- with $desc }}
+<meta name="description" content="{{ . }}">
+{{- end }}
+{{- /* 字体：取指纹地址后注入 style.css 的三个占位符；文件名带内容哈希，
+       换字体即换 URL，老访客不会吃旧缓存 */ -}}
+{{- $font := dict }}
+{{- range $name := slice "UbuntuMono-R" "UbuntuMono-B" "NotoSansSC-Light" }}
+{{- with resources.Get (printf "fonts/%s.woff2" $name) }}
+{{- $r := . | fingerprint }}
+{{- $font = merge $font (dict (index (findRE "[^/]+$" $name) 0) $r.RelPermalink) }}
+{{- end }}
+{{- end }}
+{{- $chrome := resources.Get "css/chrome.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $chrome.RelPermalink }}">
+{{- /* 中文那份最大，先抢时间：预加载，等 CSS 解析到 @font-face 时直接命中缓存 */ -}}
+{{- with resources.Get "fonts/NotoSansSC-Light.woff2" }}
+<link rel="preload" href="{{ (. | fingerprint).RelPermalink }}" as="font" type="font/woff2" crossorigin>
+{{- end }}
+{{- $style := resources.Get "css/style.css" | resources.ExecuteAsTemplate "css/style.css" (dict "monoR" (index $font "UbuntuMono-R") "monoB" (index $font "UbuntuMono-B") "cjk" (index $font "NotoSansSC-Light")) | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}">
+{{- if .Param "math" }}
+<link rel="stylesheet" href="https://unpkg.com/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://unpkg.com/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://unpkg.com/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false})"></script>
+{{- end }}
+{{- with site.Params.avatar }}
+<link rel="icon" href="{{ . | relURL }}">
+{{- end }}
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" href="{{ .RelPermalink }}" title="{{ site.Title }}">
+{{- end }}
+{{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Locale | default .Language.Lang }}" href="{{ .Permalink }}">
+{{- end }}
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:title" content="{{ .Title | default site.Title }}">
+{{- with $desc }}
+<meta property="og:description" content="{{ . }}">
+{{- end }}
+<meta property="og:site_name" content="{{ site.Title }}">
+{{- with site.Params.avatar }}
+<meta property="og:image" content="{{ . | absURL }}">
+{{- end }}
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ .Title | default site.Title }}">
+{{- with $desc }}
+<meta name="twitter:description" content="{{ . }}">
+{{- end }}

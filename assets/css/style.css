@@ -1,0 +1,1157 @@
+/* Platinum, the site template: every page is one window on the desktop
+   gray, drawn as the exe desk and its homepage draw theirs. The chrome —
+   the window, its striped bar, the sunken frame, the status strip and the
+   push button — is chrome.css beside this file, a copy of exe-stats'
+   shared block; this file is only what a site needs on top of it. Every
+   1px line is a border on a box of its own; 12px type; no hover states. */
+:root {
+   --rule: #ddd;
+   --quiet: #555;
+   --cell: #999;
+   --head: #ddd;
+   /* 细档的中文：主题自带一份思源黑体 Light（见下面的 @font-face），排第一。
+     后面跟着的全是“长得像它”的兜底，按相像程度排：思源黑体（Noto Sans CJK /
+     Source Han Sans / Noto Sans SC，和自带那份是同一套设计，只是字重不一定有
+     Light）→ macOS 苹方 → Windows 雅黑 → 老 Linux 文泉驿。字体还没下载完、
+     或读者机器上缺字时，落的都是这些，不会突然换一张脸。
+     粗档把这一串换成系统字体（见 html.serif），走它们自己的 Regular。 */
+   --cjk: "Noto Sans SC Web", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+   /* 粗档的中文：同样思源优先，不带自带那份 Light */
+   --cjk-regular: "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+   /* 正文两档的开关：西文用哪个家族、中文要哪个字重。中文没有 Light/Medium
+      家族名的（苹方、思源、雅黑都是同一个家族靠 font-weight 取子集），
+      所以一个数值同时管中英文。见下面的 .content。 */
+   --latin: "Ubuntu Mono";
+   --cjk-weight: 300;
+}
+
+:root:lang(zh-Hant) {
+   --cjk: "Noto Sans CJK TC", "Source Han Sans TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+
+:root:lang(ja) {
+   --cjk: "Noto Sans CJK JP", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+}
+
+/* bold type on a Mac: the stack in chrome.css lands there on Geneva, which
+   has one weight, so a browser thickens it a little and a heading reads as
+   the text under it. Geneva's bold on these pages is Lucida Grande's, a
+   face every Mac carries; where neither face is installed both rules come
+   to nothing and the stack goes on to its next name, as it always did. */
+@font-face {
+   font-family: "Geneva";
+   font-weight: normal;
+   src: local("Geneva");
+}
+
+@font-face {
+   font-family: "Geneva";
+   font-weight: bold;
+   src: local("Lucida Grande Bold"), local("LucidaGrande-Bold");
+}
+
+/* 整体放大：这个站按 120% 看最合适，所以整页统一缩放 1.2——等同读者
+   把浏览器缩放到 120%，但不必自己动手。改动只在这一处：调 --scale。
+   缩放后窗口仍是满宽、不出现横向滚动（auto 宽度按 1/zoom 计算再放大）。 */
+:root {
+   --scale: 1.2;
+}
+
+body {
+   zoom: var(--scale);
+}
+
+/* body 被 zoom 后背景不一定再铺满画布，这里补一层同样的桌面灰 */
+html {
+   background: var(--g400);
+}
+
+/* 字体：西文用自带的 Ubuntu Mono（等宽）。字体文件放在主题的 assets/fonts/，
+   由 head.html 用 Hugo Pipes 取指纹地址后注入下面三个 {{ .monoR }} 之类的
+   占位符（所以这份 CSS 会先当模板执行一遍再压缩、加指纹）。好处是文件名带
+   内容哈希：换字体就换 URL，老访客不会一直吃缓存里的旧文件；部署到子路径
+   也不用改路径。
+   Mono 只有 Regular 和 Bold 两份，所以两档就是这两份：细 = "Ubuntu Mono"，
+   粗 = "Ubuntu Mono Bold"（独立家族名，切档换家族而不是字重，免得连中文
+   一起换档）。要对调顺序或换字重，只改 :root 与 html.serif 里的 --latin。 */
+@font-face {
+   font-family: "Ubuntu Mono";
+   font-weight: 400;
+   font-style: normal;
+   font-display: swap;
+   src: url("{{ .monoR }}") format("woff2");
+}
+
+@font-face {
+   font-family: "Ubuntu Mono Bold";
+   font-weight: 400;
+   font-style: normal;
+   font-display: swap;
+   src: url("{{ .monoB }}") format("woff2");
+}
+
+/* 中文：思源黑体 Light 的自带副本，只做细档这一份。原文件是系统里的
+   NotoSansSC-VF.ttf（17.8 MB 的可变字体），这里：
+     1) 字重轴固定在 300（Light）；
+     2) 字形只留 GB2312 一级字（常用 3755 字）+ ASCII + 常用标点/全角符号，
+        合计 4896 个字符。
+   结果 0.56 MB（woff2，同样由 head.html 注入指纹地址）。粗档不再带第二个
+   文件：html.serif 把 --cjk 换成系统字体栈
+   （--cjk-regular），用系统黑体自己的 Regular 当“粗”，CSS 只改两条变量。
+   一级字以外的生僻字、以及粗档的中文，都自动回落到系统字体（苹方/雅黑/思源），
+   不会出现方块。许可见上一级目录的 NotoSansSC-OFL.txt（SIL OFL 1.1）。
+   家族名带 Web 后缀，避免和读者本机装的 Noto Sans SC 撞车。 */
+@font-face {
+   font-family: "Noto Sans SC Web";
+   font-weight: 300;
+   font-style: normal;
+   font-display: swap;
+   src: url("{{ .cjk }}") format("woff2");
+}
+
+/* 代码块/行内代码也用这条 "Ubuntu Mono"，bold 绑到 Bold 那份文件上，
+   这样代码里的加粗是真粗体；没有斜体文件，italic 会由浏览器合成。 */
+@font-face {
+   font-family: "Ubuntu Mono";
+   font-weight: 700;
+   font-style: normal;
+   font-display: swap;
+   src: url("{{ .monoB }}") format("woff2");
+}
+
+body {
+   font-family: var(--latin), "Charcoal", "Chicago", "Geneva", "Lucida Grande", "Lucida Sans", Verdana, var(--cjk);
+}
+
+.window {
+   max-width: 720px;
+}
+
+/* the top strip: where this page sits, in one line, on the platinum the
+   desk's status bars are made of */
+.strip.tools {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 6px 12px;
+   background: #ddd;
+   color: #333;
+   font-size: 11px;
+   border-bottom: 1px solid #262626;
+   box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .6), inset -1px -1px 0 #aaa;
+}
+
+.crumbs {
+   display: flex;
+   align-items: baseline;
+   gap: 5px;
+   min-width: 0;
+   white-space: nowrap;
+   overflow: hidden;
+}
+
+.crumbs .crumb {
+   display: inline-flex;
+   align-items: baseline;
+   gap: 5px;
+   flex: none;
+}
+
+.crumbs a {
+   color: #333399;
+   text-decoration: none;
+}
+
+.crumbs a:hover {
+   text-decoration: underline;
+}
+
+/* the step between two names is a chevron on the pixel grid; between
+   ratios 1 and 2 a fractional scale would drop a row, so it is smoothed
+   there */
+.crumbs .sep {
+   display: block;
+   flex: none;
+   align-self: center;
+   margin: 0 1px;
+   width: 4px;
+   height: 7px;
+   color: #777;
+   shape-rendering: crispEdges;
+}
+
+.crumbs .sep .k {
+   fill: currentColor;
+}
+
+@media (min-resolution: 1.01dppx) and (max-resolution: 1.99dppx) {
+   .crumbs .sep {
+      shape-rendering: geometricPrecision;
+   }
+}
+
+.crumbs b {
+   flex: 0 1 auto;
+   min-width: 3em;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+   .crumbs .crumb:not(:last-of-type) {
+      display: none;
+   }
+}
+
+/* a post's type, the reader's to choose at the strip's far end (the head
+   script is modules/type.html): − + step the text's size and Sans Serif |
+   Serif its face, joined push buttons as the exe Notes app has them, one
+   seam one line, the chosen face pressed in, and each face in Notes'
+   compact form: a sample "Aa" in itself, its name the button's label
+   and tooltip. The strip keeps its 28px: the buttons' 20px take 4px
+   above and below in place of the text's 6px. Without script the
+   controls keep their place, unseen. */
+.strip.tools.typed {
+   padding-top: 4px;
+   padding-bottom: 4px;
+}
+
+.type {
+   display: flex;
+   gap: 8px;
+   flex: none;
+   margin-left: auto;
+}
+
+html:not(.type-on) .type {
+   visibility: hidden;
+}
+
+.type .seg {
+   display: flex;
+}
+
+.type .btn {
+   min-width: 0;
+   margin: 0;
+   font-family: inherit;
+   cursor: default;
+}
+
+.type .seg .btn {
+   border-radius: 0;
+   border-right-width: 0;
+}
+
+.type .seg .btn:first-child {
+   border-radius: 3px 0 0 3px;
+}
+
+.type .seg .btn:last-child {
+   border-radius: 0 3px 3px 0;
+   border-right-width: 1px;
+}
+
+/* 单独一个按钮的段（Wrap）：四个角都是圆的，右边框不能省 */
+.type .seg .btn:only-child {
+   border-radius: 3px;
+   border-right-width: 1px;
+}
+
+.type .size .btn, .type .wrap .btn {
+   padding: 2px 8px;
+   min-width: 24px;
+}
+
+/* 字比 Aa 多，缩回 12px 才能放进 20px 高的按钮里 */
+.type [data-type=wrap] .s {
+   font-size: 12px;
+}
+
+html:not(.serif) .type [data-type=sans], html.serif .type [data-type=serif],
+html.code-wrap .type [data-type=wrap] {
+   background: #888;
+   color: #fff;
+   box-shadow: inset 1px 1px 0 #666, inset -1px -1px 0 #aaa, inset 2px 2px 0 #777, inset -2px -2px 0 #999;
+}
+
+.type .btn:disabled, html.ts-min .type [data-type=smaller], html.ts-max .type [data-type=bigger] {
+   color: #777;
+   border-color: #888;
+   background: var(--g300);
+   box-shadow: none;
+}
+
+.type .s {
+   font-weight: normal;
+   font-size: 14px;
+   line-height: 14px;
+}
+
+/* 两个 Aa 就是那两个字族本身：左粗右细 */
+.type [data-type=serif] .s {
+   font-family: "Ubuntu Mono Bold";
+}
+
+.type [data-type=sans] .s {
+   font-family: "Ubuntu Mono";
+}
+
+/* the page's body: the site's name and a line about it, then the posts */
+.body {
+   padding: 16px 16px 12px;
+}
+
+.head {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   margin: 0 0 12px;
+}
+
+.head .avatar {
+   display: block;
+   width: 32px;
+   height: 32px;
+   flex: none;
+}
+
+.head h1 {
+   margin: 0;
+   font-size: 12px;
+   line-height: 16px;
+}
+
+.head h1 small {
+   display: block;
+   font-size: 12px;
+   font-weight: normal;
+   color: var(--quiet);
+}
+
+.head h1 small p {
+   margin: 0;
+}
+
+/* the list: each post a line with its date at the far end, a summary
+   under it, 1px rules between; the last line closes the list */
+.items {
+   margin: 0;
+}
+
+.item {
+   padding: 6px 0;
+   border-top: 1px solid var(--rule);
+}
+
+.items .item:last-child {
+   border-bottom: 1px solid var(--rule);
+}
+
+.item-head {
+   display: flex;
+   align-items: baseline;
+   gap: 4px 12px;
+   flex-wrap: wrap;
+}
+
+.item-title {
+   font-weight: bold;
+   text-decoration: none;
+   color: #333399;
+}
+
+.item-title:hover {
+   text-decoration: underline;
+}
+
+.item-date {
+   margin-left: auto;
+   font-size: 11px;
+   color: var(--quiet);
+   white-space: nowrap;
+}
+
+.item-summary {
+   margin: 2px 0 0;
+   color: #333;
+}
+
+/* 友链页：两列网格，每格 = 图标 + 站名，域名和描述都不显示。
+   窄屏（≤560px）自动收成一列，图标和站名永远在同一行、垂直居中。 */
+.links-grid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 4px 16px;
+   margin-top: 12px;
+}
+
+.link-cell {
+   display: flex;
+   align-items: flex-start;
+   gap: 8px;
+   min-width: 0;
+   padding: 4px 0;
+}
+
+@media (max-width: 560px) {
+   .links-grid {
+      grid-template-columns: 1fr;
+   }
+}
+
+/* 图标固定成一个 32×32 的方格：任何比例的图都等比缩进格子里（object-fit:
+   contain），所以徽章不会被拉宽、竖图也不会被撑胖，两列永远对得齐。 */
+.link-avatar {
+   display: block;
+   width: 32px;
+   height: 32px;
+   object-fit: contain;
+   flex: none;
+   image-rendering: pixelated;
+}
+
+/* 站名与描述装在同一个块里：描述的左边缘和站名对齐，不再受图标宽度影响 */
+.link-text {
+   flex: 1 1 auto;
+   min-width: 0;
+}
+
+.link-text .item-title {
+   display: block;
+}
+
+/* 描述只占一行，超出用省略号；完整文字在 title 里（悬停可看） */
+.link-text .item-summary {
+   display: block;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.item-body {
+   margin: 2px 0 0;
+}
+
+/* a post in more than one language is listed with its title in each,
+   the one it was written with marked data-o; until the page script has
+   chosen the reader's, and without script, only that one shows */
+html:not(.lang-on) [data-l]:not([data-o]) {
+   display: none;
+}
+
+h2.section {
+   margin: 16px 0 4px;
+   font-size: 12px;
+   line-height: 16px;
+}
+
+/* the feed, as rss.xsl shows it in a browser: a line saying what the
+   file is, with its address to copy */
+.feed-note {
+   margin: 0 0 12px;
+}
+
+.feed-note code {
+   font: 11px/1.45 "Ubuntu Mono", Monaco, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+   user-select: all;
+}
+
+.items+h2.section {
+   margin-top: 20px;
+}
+
+/* a post: its title, its date in the quiet ink, then the text at the
+   manual's size, with a terminal for code and a sunken field for a
+   picture on its own */
+.post-title {
+   margin: 0 0 2px;
+   font-size: var(--ts, 12px);
+   line-height: calc(var(--ts, 12px) + 4px);
+}
+
+.date {
+   margin: 0 0 12px;
+   font-size: 11px;
+   color: var(--quiet);
+}
+
+/* a post in more than one language: the languages it can be read in, at
+   the far end of the date's line, each by its own name; the one being
+   read is bold, the others are links */
+.meta {
+   display: flex;
+   flex-wrap: wrap;
+   align-items: baseline;
+   gap: 2px 12px;
+   margin: 0 0 12px;
+}
+
+.meta .date {
+   margin: 0;
+}
+
+.langs {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 2px 8px;
+   margin-left: auto;
+   font-size: 11px;
+}
+
+.langs a {
+   color: #333399;
+   text-decoration: none;
+}
+
+.langs a:hover {
+   text-decoration: underline;
+}
+
+/* the text's size is the reader's (--ts, 12px unless chosen), and every
+   size in it follows; the weight too, once the heavier Aa is chosen */
+.content {
+   font-size: var(--ts, 12px);
+   line-height: 1.45;
+}
+
+/* 正文的粗细是读者选的：
+   细（默认）= Ubuntu Mono + 自带思源黑体 Light（--cjk，字重 300）；
+   粗 = Ubuntu Mono Bold + 系统黑体 Regular（--cjk-regular，字重 400）。
+   标题本来就是 700，只换家族、不插手字重。 */
+.post-title, .content {
+   font-family: var(--latin), "Charcoal", "Chicago", "Geneva", "Lucida Grande", "Lucida Sans", Verdana, var(--cjk);
+}
+
+.content {
+   font-weight: var(--cjk-weight);
+}
+
+html.serif {
+   --latin: "Ubuntu Mono Bold";
+   --cjk: var(--cjk-regular);
+   --cjk-weight: 400;
+}
+
+.content> :first-child {
+   margin-top: 0;
+}
+
+.content h1, .content h2 {
+   font-size: 1em;
+   font-weight: bold;
+   line-height: 1.34;
+   margin: 16px 0 4px;
+}
+
+.content h3, .content h4 {
+   font-size: 1em;
+   font-weight: bold;
+   line-height: 1.34;
+   margin: 12px 0 4px;
+   color: var(--quiet);
+}
+
+.content p {
+   margin: 0 0 8px;
+}
+
+.content ul, .content ol {
+   margin: 0 0 8px;
+   padding: 0 0 0 18px;
+}
+
+.content li {
+   margin: 0 0 4px;
+}
+
+.content li>p {
+   margin: 0 0 4px;
+}
+
+.content code {
+   font: calc(var(--ts, 12px) - 1px)/1.45 "Ubuntu Mono", Monaco, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+
+/* 代码不折行，改成在自己框里左右滑动（手机和宽屏一样）。pre-wrap 会把一行
+   命令拆得七零八落，长行就该按住看完整的一行；pre 的宽度还是容器的 100%,
+   滑的是框里的内容，所以窗口不会被撑破，复制按钮也不会跟着滑走。 */
+.content pre {
+   margin: 8px 0;
+   padding: 8px 10px;
+   white-space: pre;
+   overflow-x: auto;
+   overflow-y: hidden;
+   -webkit-overflow-scrolling: touch;
+   overscroll-behavior-x: contain;
+   scrollbar-width: thin;
+   scrollbar-color: #888 #333;
+   background: #000;
+   color: #fff;
+   cursor: text;
+   border: 1px solid #262626;
+   box-shadow: -1px -1px 0 #999, 1px 1px 0 #fff;
+}
+
+.content pre code {
+   color: inherit;
+}
+
+/* 横向滚动条：黑底上的细灰条，和终端块同一套配色 */
+.content pre::-webkit-scrollbar {
+   height: 8px;
+}
+
+.content pre::-webkit-scrollbar-track {
+   background: #333;
+}
+
+.content pre::-webkit-scrollbar-thumb {
+   background: #888;
+   border: 1px solid #000;
+}
+
+/* 顶部条上的 Wrap 按钮（js/type.js 写在 html 上）：按下去就回到折行，
+   长行在任意处断开，不再横向滑动。默认不折行，靠滑。 */
+html.code-wrap .content pre {
+   white-space: pre-wrap;
+   overflow-wrap: anywhere;
+   overflow-x: hidden;
+}
+
+/* 代码块右上角的复制按钮（由 js/copy.js 生成）：16px 的铂金小方块，骑在
+   代码框右上角。-7px 的偏移让按钮只压住框内 9px，而代码的右内边距是
+   10px，所以一个字的代码也不会被遮住；露在外面的那一角正好落在正文
+   区右侧 16px 的留白里。图标是两个叠起来的小方框（“复制”），按下和
+   复制成功时反过来变成深底白线，1.4 秒后弹回。没有脚本时按钮不存在。 */
+.content .codeblock {
+   position: relative;
+   margin: 8px 0;
+}
+
+.content .codeblock>pre, .content .codeblock>.highlight {
+   margin: 0;
+}
+
+.content>.codeblock:first-child {
+   margin-top: 0;
+}
+
+.codeblock .copy {
+   position: absolute;
+   top: -7px;
+   right: -7px;
+   z-index: 2;
+   width: 16px;
+   height: 16px;
+   padding: 0;
+   cursor: pointer;
+   background: var(--g300);
+   border: 1px solid var(--black);
+   border-radius: 2px;
+   box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #aaa;
+}
+
+.codeblock .copy::before, .codeblock .copy::after {
+   content: "";
+   position: absolute;
+   box-sizing: border-box;
+   border: 1px solid var(--black);
+}
+
+.codeblock .copy::before {
+   left: 4px;
+   top: 3px;
+   width: 6px;
+   height: 7px;
+}
+
+/* 前面那张纸压在后面那张上，所以它有自己的底色 */
+.codeblock .copy::after {
+   left: 6px;
+   top: 5px;
+   width: 6px;
+   height: 7px;
+   background: var(--g300);
+}
+
+.codeblock .copy:active, .codeblock .copy.copied {
+   background: var(--g800);
+   box-shadow: inset 1px 1px 0 #444, inset -1px -1px 0 #888;
+}
+
+.codeblock .copy:active::before, .codeblock .copy:active::after,
+.codeblock .copy.copied::before, .codeblock .copy.copied::after {
+   border-color: #fff;
+}
+
+.codeblock .copy:active::after, .codeblock .copy.copied::after {
+   background: var(--g800);
+}
+
+.codeblock .copy:focus-visible {
+   outline: 2px solid var(--hl);
+   outline-offset: 1px;
+}
+
+/* 手机上没有鼠标，按钮做大一点才好点 */
+@media (pointer: coarse) {
+   .codeblock .copy {
+      width: 20px;
+      height: 20px;
+      top: -8px;
+      right: -8px;
+   }
+
+   .codeblock .copy::before {
+      left: 5px;
+      top: 4px;
+      width: 7px;
+      height: 8px;
+   }
+
+   .codeblock .copy::after {
+      left: 8px;
+      top: 6px;
+      width: 7px;
+      height: 8px;
+   }
+}
+
+.content blockquote {
+   margin: 0 0 8px;
+   padding: 0 0 0 10px;
+   border-left: 2px solid #999;
+   color: var(--quiet);
+}
+
+.content hr {
+   border: 0;
+   border-top: 1px solid #262626;
+   margin: 12px 0;
+}
+
+.content img, .content video {
+   max-width: 100%;
+   height: auto;
+}
+
+.content p>img:only-child {
+   display: block;
+   margin: 12px 0;
+   border: 1px solid #262626;
+   background: #ccf;
+   box-shadow: -1px -1px 0 #999, 1px 1px 0 #fff;
+}
+
+/* pixel art keeps its pixels at every ratio: an image with class
+   "pixel", or an 88 by 31 one, which is a badge and never a picture on
+   a field, so it also loses the sunken frame and sits inline in a row */
+.content img.pixel, .content img[width="88"][height="31"] {
+   image-rendering: pixelated;
+   image-rendering: crisp-edges;
+}
+
+.content p>img[width="88"][height="31"]:only-child, .content p>img.pixel:only-child {
+   display: inline-block;
+   margin: 0;
+   border: 0;
+   background: none;
+   box-shadow: none;
+}
+
+.content table {
+   border-collapse: collapse;
+   font-size: calc(var(--ts, 12px) - 1px);
+   line-height: 1.4;
+   margin: 8px 0;
+   max-width: 100%;
+}
+
+.content th, .content td {
+   border: 1px solid var(--cell);
+   padding: 3px 6px;
+   text-align: left;
+   vertical-align: top;
+}
+
+.content th {
+   background: var(--head);
+   font-weight: bold;
+   white-space: nowrap;
+}
+
+.content input[type=checkbox] {
+   vertical-align: -1px;
+}
+
+/* A to-do item ("- [ ] words"), as the Sepia template has them: the
+   checkbox is hidden and the item draws its own in the bullet's place,
+   the desk's OS 9 check box (the Todo app's, copied): a 12px white
+   square, black border, sunken bevel, the pixel check once done, 6px off
+   its words; the done words are struck through in grey, as the desk and
+   the hub strike theirs. A numbered item keeps its number and takes the
+   box inside. Only where the browser can ask an item what it holds
+   (:has); elsewhere the checkbox stays as it comes. */
+@supports selector(li:has(> input)) {
+   .content li:is(:has(> input[type=checkbox]), :has(> p:first-child > input[type=checkbox]:first-child)) {
+      position: relative;
+   }
+
+   .content ul>li:is(:has(> input[type=checkbox]), :has(> p:first-child > input[type=checkbox]:first-child)) {
+      list-style: none;
+   }
+
+   .content ol>li:is(:has(> input[type=checkbox]), :has(> p:first-child > input[type=checkbox]:first-child)) {
+      padding-left: 18px;
+   }
+
+   .content li>input[type=checkbox], .content li>p:first-child>input[type=checkbox]:first-child {
+      display: none;
+   }
+
+   .content li:is(:has(> input[type=checkbox]), :has(> p:first-child > input[type=checkbox]:first-child))::before {
+      content: "";
+      box-sizing: border-box;
+      position: absolute;
+      left: -18px;
+      top: max(3px, calc(.725em - 6px));
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--black);
+      background: #fff center no-repeat;
+      box-shadow: inset 1px 1px 0 var(--g500), inset -1px -1px 0 #fff;
+   }
+
+   .content ol>li:is(:has(> input[type=checkbox]), :has(> p:first-child > input[type=checkbox]:first-child))::before {
+      left: 0;
+   }
+
+   .content li:is(:has(> input[type=checkbox]:checked), :has(> p:first-child > input[type=checkbox]:first-child:checked))::before {
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" shape-rendering="crispEdges"><path fill="black" d="M1 3h1v2h-1z M2 4h1v2h-1z M3 5h1v2h-1z M4 4h1v2h-1z M5 3h1v2h-1z M6 2h1v2h-1z M7 1h1v2h-1z M8 0h1v2h-1z"/></svg>');
+   }
+
+   .content li>input[type=checkbox]:checked+.todo-words, .content li>input[type=checkbox]:checked+p {
+      color: #777;
+      text-decoration: line-through;
+   }
+
+   /* An item the page script numbered (todo-item-N) can be ticked by the
+     app showing the page. Only its box takes a click, and the click is
+     then the item's own: its words, a link among them and a list inside
+     it keep theirs. */
+   .content li[id^="todo-item-"] {
+      pointer-events: none;
+   }
+
+   .content li[id^="todo-item-"]>*, .content li[id^="todo-item-"]::before {
+      pointer-events: auto;
+   }
+}
+
+.video-container, .audio-container {
+   margin: 0 0 8px;
+}
+
+.video-container video, .audio-container audio {
+   display: block;
+   width: 100%;
+}
+
+.tags {
+   display: flex;
+   flex-wrap: wrap;
+   align-items: baseline;
+   gap: 4px 8px;
+   margin: 12px 0 0;
+   font-size: 11px;
+}
+
+.tags .quiet {
+   color: var(--quiet);
+}
+
+/* 文章最下面的信息表 / 版权声明：一条细线 + 一张两列（标签 / 内容）的定义表。
+   比正文轻一档，标签用更淡的灰，内容继承正文色；窄屏也不会错位，
+   因为第一列是 max-content，第二列吃掉剩下的宽度并允许长链接折行。 */
+.copyright {
+   display: grid;
+   grid-template-columns: max-content 1fr;
+   gap: 1px 8px;
+   margin: 12px 0 0;
+   padding: 8px 0 0;
+   border-top: 1px solid var(--rule);
+   font-size: 11px;
+   line-height: 1.7;
+   color: var(--quiet);
+}
+
+.copyright dt {
+   color: #777;
+}
+
+.copyright dd {
+   margin: 0;
+   min-width: 0;
+   overflow-wrap: anywhere;
+}
+
+.copyright a {
+   color: #333399;
+   text-decoration: none;
+}
+
+.copyright a:hover {
+   text-decoration: underline;
+}
+
+.tags .tag {
+   color: #333399;
+   text-decoration: none;
+}
+
+.tags .tag:hover {
+   text-decoration: underline;
+}
+
+/* the button row: its own row under the text, 12px from the frame's
+   edges and between buttons, the way home rightmost and ringed */
+.btnrow {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: flex-end;
+   gap: 12px;
+   padding: 4px 12px 12px;
+}
+
+.btnrow .btn {
+   font-family: inherit;
+}
+
+/* 翻页条：单独一条，不占按钮行。上一页靠左、页码居中、下一页靠右，
+   两侧的空格子永远存在，所以页码始终在正中；页码是纯文字，不再画成
+   一个按不动的按钮。上线借列表最后那条收口线，避免两条平行细线。 */
+.items:has(+ .pager) .item:last-child {
+   border-bottom: 0;
+}
+
+.pager {
+   display: grid;
+   grid-template-columns: 1fr auto 1fr;
+   align-items: center;
+   gap: 12px;
+   padding: 10px 0 0;
+   border-top: 1px solid var(--rule);
+}
+
+.pager-side {
+   display: flex;
+}
+
+.pager-side-end {
+   justify-content: flex-end;
+}
+
+.pager-num {
+   font-size: 11px;
+   line-height: 20px;
+   color: var(--quiet);
+}
+
+.pager .btn {
+   min-width: 44px;
+   font-family: inherit;
+}
+
+/* on a phone the words will not fit, so Archive, Tags, the Badge page and
+   RSS shrink to icon buttons: the desk's own colour pixel art, black
+   outlines and flat fills, the same on the pressed face; Home keeps its
+   word */
+.btnrow .btn .ix {
+   display: none;
+}
+
+@media (max-width: 480px) {
+   /* 手机上一排要放六个按钮：间距收紧、两个文字按钮（Home / Links）缩小，
+      六个加起来约 250px，320px 宽的屏幕上也不换行；万一将来按钮更多而折行，
+      折下来的那行居中，不会挤在右边像多出来一块 */
+   .btnrow {
+      gap: 8px;
+      justify-content: center;
+   }
+
+   .btnrow .btn:not(.glyph) {
+      min-width: 0;
+      padding: 2px 8px;
+      font-size: 11px;
+   }
+
+   .btnrow .btn.glyph {
+      min-width: 0;
+      width: 28px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+   }
+
+   .btnrow .btn.glyph .t {
+      display: none;
+   }
+
+   .btnrow .btn.glyph .ix {
+      display: block;
+      shape-rendering: crispEdges;
+   }
+}
+
+/* between ratios 1 and 2 a fractional scale would drop rows of a
+   crisp glyph, so it is smoothed there instead, as the crumbs' chevron is */
+@media (max-width: 480px) and (min-resolution: 1.01dppx) and (max-resolution: 1.99dppx) {
+   .btnrow .btn.glyph .ix {
+      shape-rendering: geometricPrecision;
+   }
+}
+
+.btn.default {
+   outline: 2px solid #262626;
+   outline-offset: 1px;
+   border-radius: 4px;
+}
+
+/* the status strip's two ends: the first at the left, the last pushed
+   right, the room between them whatever is left */
+.statusbar> :last-child:not(:first-child) {
+   margin-left: auto;
+}
+
+.statusbar a {
+   color: #333399;
+   text-decoration: none;
+}
+
+.statusbar a:hover {
+   text-decoration: underline;
+}
+
+.foot {
+   max-width: 720px;
+   margin: 0 auto;
+   text-align: center;
+   font-size: 11px;
+   color: #333;
+}
+
+/* 页脚的链接不带下划线：11px 的灰字底下一条下划线很扎眼，链接本身也有颜色 */
+.foot a, .foot-links a {
+   color: #333399;
+   text-decoration: none;
+}
+
+/* 页脚第二行：联系方式 / 外部链接，居中，项与项之间一个灰点 */
+.foot-links {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   max-width: 720px;
+   margin: 6px auto 0;
+   font-size: 11px;
+   line-height: 1.45;
+   color: #333;
+}
+
+.foot-links a:not(:first-child)::before {
+   content: "·";
+   color: var(--quiet);
+   margin: 0 8px 0 5px;
+}
+
+/* what Hugo's own Markdown puts on the page: a highlighted code block is
+   the terminal, its gutter folded into it, and a footnote list sits at
+   the text's size with a rule above it */
+.content .highlight {
+   margin: 8px 0;
+}
+
+.content .highlight pre {
+   margin: 0;
+}
+
+.content .highlight code {
+   font-size: inherit;
+}
+
+.content .footnotes {
+   margin: 16px 0 0;
+   font-size: calc(var(--ts, 12px) - 1px);
+   color: var(--quiet);
+}
+
+.content .footnotes hr {
+   border-top: 1px solid var(--rule);
+}
+
+.content .footnotes ol {
+   padding: 0 0 0 18px;
+}
+
+.content dl {
+   margin: 0 0 8px;
+}
+
+.content dt {
+   font-weight: bold;
+}
+
+.content dd {
+   margin: 0 0 4px 18px;
+}
+
+.content sup {
+   line-height: 0;
+}
+
+/* a highlighted block keeps the terminal's black whatever chroma draws
+   behind it, so the sunken frame reads as the same field as a plain one */
+.content .highlight pre {
+   background: #000 !important;
+}
+
+/* 数学公式：块级公式独占一行，过宽时在自己的框里横向滚动，不撑破窗口 */
+.content .katex {
+   font-size: 1.05em;
+}
+
+.content .katex-display {
+   margin: 10px 0;
+   padding: 2px 0;
+   overflow-x: auto;
+   overflow-y: hidden;
+}
+
+/* 正文里的链接：和站里其它链接一致——蓝色、不带下划线，悬停时才出现下划线。
+   顺带让超长链接（整串 URL）在任意处折行，不撑破窗口。 */
+.content a {
+   overflow-wrap: anywhere;
+   color: #333399;
+   text-decoration: none;
+}
+
+.content a:hover {
+   text-decoration: underline;
+}
+
+/* 窄屏（手机）：顶条上不摆字号 / 字重 / 折行这组按钮——挤不下，也不该让人
+   在小屏上折腾这些。窄屏与宽屏是同一份设置：宽屏上选过的字号、粗细、折行
+   在手机上照样生效，只是那里没有按钮可换。 */
+@media (max-width: 480px) {
+   .type {
+      display: none;
+   }
+
+   /* 按钮不在了，工具条回到普通行高（4px 是为了给 20px 按钮腾地方） */
+   .strip.tools.typed {
+      padding-top: 6px;
+      padding-bottom: 6px;
+   }
+}

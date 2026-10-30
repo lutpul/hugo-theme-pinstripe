@@ -1,0 +1,8 @@
+{{- /* 站徽短码：先给一张活的预览，再给一段可以直接拷走的 HTML。
+       图片默认用 /images/badge.png，可用 {{< badge img="/x.png" >}} 换。
+       代码块里的地址取站点配置的 baseURL，换域名不用改这篇内容。 */ -}}
+{{- $path := .Get "img" | default "/images/badge.png" -}}
+{{- $imgURL := $path | absURL -}}
+{{- $home := site.Home.Permalink -}}
+<p class="badge-live"><img src="{{ $path | relURL }}" alt="{{ site.Title }}" width="88" height="31"></p>
+<pre><code>&lt;a href="{{ $home }}" target="_blank" rel="noopener"&gt;&lt;img src="{{ $imgURL }}" alt="{{ site.Title }}" width="88" height="31"&gt;&lt;/a&gt;</code></pre>

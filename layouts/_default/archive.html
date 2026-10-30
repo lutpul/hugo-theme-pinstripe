@@ -1,0 +1,24 @@
+{{ define "window-title" }}{{ site.Title }} — {{ .Title }}{{ end }}
+
+{{ define "main" }}
+  {{- $sections := site.Params.mainSections | default (slice "posts") -}}
+  {{- $pages := where site.RegularPages "Section" "in" $sections -}}
+  {{- $months := $pages.GroupByDate "January 2006" }}
+  <div class="body">
+    <div class="head"><h1>{{ .Title }}<small>{{ len $pages }} {{ if eq (len $pages) 1 }}post{{ else }}posts{{ end }}</small></h1></div>
+    {{- range $months }}
+    <h2 class="section">{{ .Key }}</h2>
+    <div class="items">
+      {{- range .Pages }}
+      {{ partial "post-item.html" . }}
+      {{- end }}
+    </div>
+    {{- end }}
+  </div>
+{{ end }}
+
+{{ define "status" }}
+  {{- $sections := site.Params.mainSections | default (slice "posts") -}}
+  {{- $pages := where site.RegularPages "Section" "in" $sections }}
+  <span>{{ len $pages }} {{ if eq (len $pages) 1 }}post{{ else }}posts{{ end }} in {{ len ($pages.GroupByDate "January 2006") }} {{ if eq (len ($pages.GroupByDate "January 2006")) 1 }}month{{ else }}months{{ end }}</span>
+{{ end }}

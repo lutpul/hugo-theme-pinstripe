@@ -1,0 +1,36 @@
+{{ define "window-title" }}{{ site.Title }} — {{ .Title }}{{ end }}
+
+{{ define "main" }}
+  {{- $links := hugo.Data.links | default slice -}}
+  <div class="body">
+    <div class="head"><h1>{{ .Title }}<small>{{ len $links }} {{ if eq (len $links) 1 }}site{{ else }}sites{{ end }}</small></h1></div>
+    {{- with .Content }}
+    <div class="content">
+{{ . }}
+    </div>
+    {{- end }}
+    {{- with $links }}
+    {{- /* 两列网格：每格 = 固定 32×32 的图标 + 站名 + 一行描述。
+           域名不显示；描述超出单行用省略号收尾（悬停看全文）。 */ -}}
+    <div class="links-grid">
+      {{- range . }}
+      <div class="link-cell">
+        {{- with .avatar }}
+        {{- $src := . }}
+        {{- if not (hasPrefix $src "http") }}{{ $src = $src | relURL }}{{ end }}
+        <img class="link-avatar" src="{{ $src }}" alt="" loading="lazy" decoding="async">
+        {{- end }}
+        <span class="link-text">
+          <a class="item-title" href="{{ .url }}" rel="noopener" target="_blank">{{ .name }}</a>
+          {{- with .desc }}
+          <span class="item-summary" title="{{ . }}">{{ . }}</span>
+          {{- end }}
+        </span>
+      </div>
+      {{- end }}
+    </div>
+    {{- end }}
+  </div>
+{{ end }}
+
+{{ define "status" }}<span>{{ len (hugo.Data.links | default slice) }} {{ if eq (len (hugo.Data.links | default slice)) 1 }}site{{ else }}sites{{ end }}</span>{{ end }}

@@ -1,0 +1,10 @@
+{{- $p := . -}}
+{{- if gt $p.TotalPages 1 }}
+{{- /* 翻页条：上一页靠左、页码居中、下一页靠右；只有存在时才出现箭头，
+       两侧的空格子留着，所以页码永远落在正中 */ -}}
+<div class="pager">
+  <span class="pager-side">{{ if $p.HasPrev }}<a class="btn" href="{{ $p.Prev.URL }}" rel="prev" aria-label="Previous page">&larr;</a>{{ end }}</span>
+  <span class="pager-num">{{ $p.PageNumber }} / {{ $p.TotalPages }}</span>
+  <span class="pager-side pager-side-end">{{ if $p.HasNext }}<a class="btn" href="{{ $p.Next.URL }}" rel="next" aria-label="Next page">&rarr;</a>{{ end }}</span>
+</div>
+{{- end }}

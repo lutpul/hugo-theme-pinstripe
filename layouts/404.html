@@ -1,0 +1,12 @@
+{{ define "window-title" }}{{ site.Title }} — Not Found{{ end }}
+
+{{ define "main" }}
+  <div class="body">
+    <div class="head"><h1>Not Found<small>The page you asked for is not on this site.</small></h1></div>
+    <div class="content">
+      <p><a href="{{ site.Home.RelPermalink }}">Back to the home page</a></p>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "status" }}<span>404</span>{{ end }}

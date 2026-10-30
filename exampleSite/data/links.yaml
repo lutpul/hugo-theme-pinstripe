@@ -1,0 +1,49 @@
+# 友链数据：一个站点一条，顺序就是页面上的顺序。
+# name / url 必填；desc 和 avatar 可选（完整说明见根目录 links.example.yaml）。
+# 头像高度固定 32px，宽度按原图比例（最小 32px、最大 96px），
+# 下面几条故意用各种尺寸的图，看不同比例实际怎么落位。
+# 注意：desc 里如果有半角冒号（比如 CSS 属性），整段要用引号包起来，否则 YAML 会解析失败。
+- name: 方形 16×16
+  url: https://example.org/16/
+  avatar: /images/friends/sq-16.png
+  desc: "16×16 的小图标，会被放大到 32×32；像素图放大后边缘还是硬的（image-rendering: pixelated）。"
+
+- name: 方形 32×32
+  url: https://example.org/32/
+  avatar: /images/friends/sq-32.png
+  desc: "32×32，和显示尺寸刚好一致，一个像素都不缩不放大，最清楚的一档。"
+
+- name: 方形 64×64
+  url: https://example.org/64/
+  avatar: /images/friends/sq-64.png
+  desc: "64×64 缩到一半，边缘做平滑，细节比 16×16 那档多一点。"
+
+- name: 徽章 88×31
+  url: https://example.org/badge/
+  avatar: /images/friends/badge.png
+  desc: "88×31 的站徽，高度跟着 32px 走，宽度按比例变成 91×32。"
+
+- name: 横图 100×40
+  url: https://example.org/wide/
+  avatar: /images/friends/wide-100x40.png
+  desc: "100×40：宽度算出 80px，没到 96px 上限，所以是 80×32。"
+
+- name: 竖图 40×100
+  url: https://example.org/tall/
+  avatar: /images/friends/tall-40x100.png
+  desc: "40×100 的竖图：高度压到 32px 后宽度只有 12.8px，被 min-width 撑回 32px，比例就变形了。"
+
+- name: 细条 120×16
+  url: https://example.org/thin/
+  avatar: /images/friends/thin-120x16.png
+  desc: "120×16 的细长条：宽度 240px 超过 96px 上限，被压成 96px 宽 × 12.8px 高，再被 min-width 拉到 32px。"
+
+- name: 大图 200×200
+  url: https://example.org/big/
+  avatar: /images/friends/big-200x200.png
+  desc: "200×200 的大图缩到 32×32，细节会糊；图标别直接拿大图当。"
+
+- name: 无头像
+  url: https://example.org/none/
+  avatar: https://cn.cravatar.com/avatar/868740183b995d2707e307ce0a89633a?s=200
+  desc: "不写 avatar 的条目，站名和描述从行首开始，左边不占位。"

@@ -1,0 +1,13 @@
+name = "Pinstripe"
+license = "MIT"
+licenselink = "https://github.com/lutpul/hugo-theme-pinstripe/blob/main/LICENSE"
+description = "每一页都是桌面灰上的一扇窗口：条纹标题栏、下沉的内容框、状态条、像素图标，西文全等宽。"
+homepage = "https://github.com/lutpul/hugo-theme-pinstripe"
+demosite = "https://lutpul.com"
+tags = ["blog", "retro", "minimal", "monospace", "desktop", "light", "responsive"]
+features = ["blog", "taxonomies", "rss", "syntax highlighting", "multilingual", "dark-free"]
+min_version = "0.156.0"
+
+[author]
+  name = "lutpul"
+  homepage = "https://lutpul.com"

@@ -1,0 +1,9 @@
+<div class="item">
+  <div class="item-head">
+    <a class="item-title" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+    <span class="item-date">{{ .Date | time.Format "Jan 2, 2006" }}</span>
+  </div>
+  {{- if and site.Params.summaries .Summary }}
+  <p class="item-summary">{{ .Summary | plainify | htmlUnescape }}</p>
+  {{- end }}
+</div>

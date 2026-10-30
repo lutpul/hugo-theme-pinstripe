@@ -1,0 +1,20 @@
+{{ define "window-title" }}{{ site.Title }} — {{ .Title }}{{ end }}
+
+{{ define "main" }}
+  {{- $n := len .Data.Terms }}
+  <div class="body">
+    <div class="head"><h1>{{ .Title }}<small>{{ $n }} {{ if eq $n 1 }}tag{{ else }}tags{{ end }}</small></h1></div>
+    <div class="items">
+      {{- range .Data.Terms.ByCount }}
+      <div class="item">
+        <div class="item-head">
+          <a class="item-title" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+          <span class="item-date">{{ .Count }} {{ if eq .Count 1 }}post{{ else }}posts{{ end }}</span>
+        </div>
+      </div>
+      {{- end }}
+    </div>
+  </div>
+{{ end }}
+
+{{ define "status" }}<span>{{ len .Data.Terms }} {{ if eq (len .Data.Terms) 1 }}tag{{ else }}tags{{ end }}</span>{{ end }}

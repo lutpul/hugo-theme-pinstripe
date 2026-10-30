@@ -1,0 +1,33 @@
+{{- /* Markdown 图片的渲染：给每张图补 width / height / loading="lazy" /
+       decoding="async"，能拿到 Hugo 资源时再生成 srcset。
+       为什么要有尺寸：没有 width/height，图片加载完会把下面的正文顶下去（CLS）。
+       为什么要有 srcset：示例图 800px 原图直出，手机上白下载。
+       顺序：先找 page bundle 里的同名资源，再找 assets/ 里的，最后当作
+       原样路径输出（static/ 下的文件拿不到尺寸，就只补 lazy）。 */ -}}
+{{- $dest := .Destination -}}
+{{- $alt := .PlainText -}}
+{{- $title := .Title -}}
+{{- $res := "" -}}
+{{- $u := urls.Parse $dest -}}
+{{- if and (not $u.IsAbs) (not $u.Host) -}}
+  {{- with .Page.Resources.GetMatch (path.Base $u.Path) }}{{ $res = . }}{{ end -}}
+  {{- if not $res }}{{ with resources.Get (strings.TrimPrefix "/" $u.Path) }}{{ $res = . }}{{ end }}{{ end -}}
+{{- end -}}
+{{- $dims := false -}}
+{{- with $res }}{{ if and (gt .Width 0) (gt .Height 0) }}{{ $dims = true }}{{ end }}{{ end -}}
+{{- if and $res $dims -}}
+  {{- /* 只对这些格式做缩放；gif 可能带帧动画，保留原图只补尺寸 */ -}}
+  {{- $set := slice -}}
+  {{- if in (slice "jpeg" "png" "webp" "tiff") $res.MediaType.SubType -}}
+    {{- range $w := slice 480 960 -}}
+      {{- if lt $w $res.Width -}}
+        {{- $r := $res.Resize (printf "%dx" $w) -}}
+        {{- $set = $set | append (printf "%s %dw" $r.RelPermalink $r.Width) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $set = $set | append (printf "%s %dw" $res.RelPermalink $res.Width) -}}
+<img src="{{ $res.RelPermalink }}"{{ if gt (len $set) 1 }} srcset="{{ delimit $set ", " }}" sizes="(max-width: 752px) calc(100vw - 40px), 678px"{{ end }} width="{{ $res.Width }}" height="{{ $res.Height }}" alt="{{ $alt }}"{{ with $title }} title="{{ . }}"{{ end }} loading="lazy" decoding="async">
+{{- else -}}
+<img src="{{ $dest | safeURL }}" alt="{{ $alt }}"{{ with $title }} title="{{ . }}"{{ end }} loading="lazy" decoding="async">
+{{- end -}}

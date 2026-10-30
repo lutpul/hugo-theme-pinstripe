@@ -1,0 +1,46 @@
+{{ define "window-title" }}{{ .Title }}{{ end }}
+
+{{ define "main" }}
+  <div class="body">
+    <h1 class="post-title">{{ .Title }}</h1>
+    {{- $hasDate := not .Date.IsZero }}
+    {{- if or $hasDate .IsTranslated }}
+    <div class="meta">{{ if $hasDate }}<div class="date">{{ .Date | time.Format "Jan 2, 2006 at 3:04:05 PM" }}</div>{{ end }}{{ if .IsTranslated }}<div class="langs">{{ range .AllTranslations }}{{ if eq .Lang $.Lang }}<b lang="{{ .Language.Locale | default .Language.Lang }}" aria-current="true">{{ .Language.LanguageName }}</b>{{ else }}<a href="{{ .RelPermalink }}" lang="{{ .Language.Locale | default .Language.Lang }}" hreflang="{{ .Language.Locale | default .Language.Lang }}">{{ .Language.LanguageName }}</a>{{ end }}{{ end }}</div>{{ end }}</div>
+    {{- end }}
+    <div class="content">
+{{ .Content }}
+    </div>
+    {{- $showTags := true }}
+    {{- if isset site.Params "tags" }}{{ $showTags = site.Params.tags }}{{ end }}
+    {{- if and $showTags (.GetTerms "tags") }}
+    <div class="tags"><span class="quiet">Tags</span>{{ range .GetTerms "tags" }}<a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}</div>
+    {{- end }}
+    {{- /* 文章信息 / 版权声明：一张 key-value 表，贴在正文和标签之后。
+           每一项都能用文章 front matter 逐篇覆盖，也可以只在站点配置里写一次。
+           站点配置里写 copyrightNote 会整句替换“版权声明”那一行。 */ -}}
+    {{- $author := .Params.author | default site.Params.author | default site.Title }}
+    {{- $license := .Params.license | default site.Params.license }}
+    {{- $licenseURL := .Params.licenseURL | default site.Params.licenseURL }}
+    {{- $note := .Params.copyrightNote | default site.Params.copyrightNote }}
+    {{- $policy := .Params.aiPolicy | default site.Params.aiPolicy }}
+    <dl class="copyright">
+      <dt>本文标题</dt><dd>{{ .Title }}</dd>
+      <dt>文章作者</dt><dd>{{ $author }}</dd>
+      {{- if not .Date.IsZero }}
+      <dt>发布时间</dt><dd>{{ .Date.Format "2006-01-02" }}</dd>
+      {{- end }}
+      {{- if not .Lastmod.IsZero }}
+      <dt>最后更新</dt><dd>{{ .Lastmod.Format "2006-01-02" }}</dd>
+      {{- end }}
+      <dt>原始链接</dt><dd><a href="{{ .Permalink }}">{{ .Permalink }}</a></dd>
+      {{- if $license }}
+      <dt>版权声明</dt><dd>{{ with $note }}{{ . | safeHTML }}{{ else }}本博客所有文章除特别声明外，均采用 {{ if $licenseURL }}<a href="{{ $licenseURL }}" rel="license noopener" target="_blank">{{ $license }}</a>{{ else }}{{ $license }}{{ end }} 许可协议。转载请注明出处！{{ end }}</dd>
+      {{- end }}
+      {{- with $policy }}
+      <dt>授权限制</dt><dd>{{ . | safeHTML }}</dd>
+      {{- end }}
+    </dl>
+  </div>
+{{ end }}
+
+{{ define "status" }}<span><a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a></span>{{ if not .Date.IsZero }}<span>{{ .Date | time.Format "Jan 2, 2006 at 3:04:05 PM" }}</span>{{ end }}{{ end }}

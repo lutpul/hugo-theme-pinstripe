@@ -1,0 +1,56 @@
+{{- $page := . -}}
+{{- $showTags := true -}}
+{{- if isset site.Params "tags" }}{{ $showTags = site.Params.tags }}{{ end -}}
+{{- $showAbout := true -}}
+{{- if isset site.Params "about" }}{{ $showAbout = site.Params.about }}{{ end -}}
+{{- /* 友链页的开关，默认显示；写 friendLinks: false 就隐藏按钮 */ -}}
+{{- $showLinks := true -}}
+{{- if isset site.Params "friendlinks" }}{{ $showLinks = site.Params.friendLinks }}{{ end -}}
+{{- /* RSS 按钮的开关，默认显示；写 rss: false 就隐藏按钮（订阅地址本身还在） */ -}}
+{{- $showRSS := true -}}
+{{- if isset site.Params "rss" }}{{ $showRSS = site.Params.rss }}{{ end -}}
+{{- $about := site.Params.aboutURL | default "about/" -}}
+{{- $aboutURL := $about | relLangURL -}}
+{{- $archive := site.Params.archive | default "archive/" -}}
+{{- $archiveURL := $archive | relLangURL -}}
+{{- $badgeURL := "" -}}
+{{- with site.Params.badge }}{{ $badgeURL = . | relURL }}{{ end -}}
+{{- $tags := "tags/" | relLangURL -}}
+{{- $linksURL := "links/" | relLangURL -}}
+{{- /* 比较地址时去掉结尾的斜杠，带不带都能对上 */ -}}
+{{- $here := strings.TrimSuffix "/" $page.RelPermalink -}}
+{{- $current := "" -}}
+{{- if $page.IsHome }}
+  {{- $current = "home" }}
+{{- else if and $showAbout (eq $here (strings.TrimSuffix "/" $aboutURL)) }}
+  {{- $current = "about" }}
+{{- else if or (eq $page.Section "archive") (eq $page.Type "archive") (eq $here (strings.TrimSuffix "/" $archiveURL)) }}
+  {{- $current = "archive" }}
+{{- else if and $showTags (or (in (slice "taxonomy" "term") $page.Kind) (eq $page.Section "tags")) }}
+  {{- $current = "tags" }}
+{{- else if eq $page.Layout "links" }}
+  {{- $current = "links" }}
+{{- else if and $badgeURL (eq $here (strings.TrimSuffix "/" $badgeURL)) }}
+  {{- $current = "badge" }}
+{{- end -}}
+<div class="btnrow">
+  <a class="btn{{ if eq $current "home" }} default{{ end }}" href="{{ site.Home.RelPermalink }}">Home</a>
+  {{- if $showAbout }}
+  <a class="btn glyph{{ if eq $current "about" }} default{{ end }}" href="{{ $aboutURL }}" title="About" aria-label="About"><span class="t">About</span>{{ partial "icon-about.html" $page }}</a>
+  {{- end }}
+  <a class="btn glyph{{ if eq $current "archive" }} default{{ end }}" href="{{ $archiveURL }}" title="Archive" aria-label="Archive"><span class="t">Archive</span>{{ partial "icon-archive.html" $page }}</a>
+  {{- if $showTags }}
+  <a class="btn glyph{{ if eq $current "tags" }} default{{ end }}" href="{{ $tags }}" title="Tags" aria-label="Tags"><span class="t">Tags</span>{{ partial "icon-tags.html" $page }}</a>
+  {{- end }}
+  {{- if $showLinks }}
+  <a class="btn glyph{{ if eq $current "links" }} default{{ end }}" href="{{ $linksURL }}" title="Links" aria-label="Links"><span class="t">Links</span>{{ partial "icon-links.html" $page }}</a>
+  {{- end }}
+  {{- with site.Params.badge }}
+  <a class="btn glyph{{ if eq $current "badge" }} default{{ end }}" href="{{ . | relURL }}" title="Badge" aria-label="Badge"><span class="t">Badge</span>{{ partial "icon-badge.html" $page }}</a>
+  {{- end }}
+  {{- if $showRSS }}
+  {{- with site.Home.OutputFormats.Get "rss" }}
+  <a class="btn glyph" href="{{ .RelPermalink }}" title="RSS" aria-label="RSS"><span class="t">RSS</span>{{ partial "icon-rss.html" $page }}</a>
+  {{- end }}
+  {{- end }}
+</div>

@@ -1,0 +1,20 @@
+{{ define "window-title" }}{{ site.Title }} — {{ .Title }}{{ end }}
+
+{{ define "main" }}
+  {{- $paginator := .Paginate .Pages }}
+  <div class="body">
+    <div class="head"><h1>{{ .Title }}<small>{{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }}</small></h1></div>
+    <div class="items">
+      {{- range $paginator.Pages }}
+      {{ partial "post-item.html" . }}
+      {{- end }}
+    </div>
+    {{ partial "pagination.html" $paginator }}
+  </div>
+{{ end }}
+
+{{ define "status" }}
+  {{- $p := .Paginator }}
+  <span>{{ $p.TotalNumberOfElements }} {{ if eq $p.TotalNumberOfElements 1 }}post{{ else }}posts{{ end }}</span>
+  <span>page {{ $p.PageNumber }} / {{ $p.TotalPages }}</span>
+{{ end }}

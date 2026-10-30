@@ -1,0 +1,14 @@
+<p class="foot">{{ with site.Params.footer }}{{ . | safeHTML }}{{ else }}Built with <a href="https://gohugo.io/"
+        target="_blank" rel="noopener">Hugo</a>.{{ end }}<br>Last built {{ now.UTC.Add (time.ParseDuration "8h") | time.Format "2006-01-02 15:04:05" }}{{ with site.Params.commit }} · {{ substr . 0 7 }}{{ end }}</p>
+{{- /* 联系方式与外部链接：都在 params 里写，这里按顺序排成一行。
+       email 走 mailto:；links 里的 rel 可写 me（社交主页），不写就是 noopener。 */ -}}
+{{- with or site.Params.email site.Params.links }}
+<p class="foot-links">
+  {{- with site.Params.email }}
+  <a href="mailto:{{ . }}">Email</a>
+  {{- end }}
+  {{- range site.Params.links }}
+  <a href="{{ .url }}"{{ with .rel }} rel="{{ . }} noopener"{{ else }} rel="noopener"{{ end }} target="_blank">{{ .name }}</a>
+  {{- end }}
+</p>
+{{- end }}

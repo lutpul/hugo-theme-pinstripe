@@ -1,0 +1,51 @@
+# 示例站点配置：主题支持的每个键都写在这里，注释说明了默认值和作用。
+# 本地预览：
+#   cd exampleSite && hugo server --themesDir ../..
+baseURL: "https://example.org/"
+locale: "zh-CN"
+title: "Pinstripe"
+theme: hugo-theme-pinstripe
+
+taxonomies:
+  tag: tags
+
+params:
+  description: "每一页都是桌面灰上的一扇窗口"
+  tags: true
+  about: true
+  friendLinks: true
+  rss: true
+  badge: /badge/
+  avatar: /avatar.png
+  footer: 'Built with <a href="https://gohugo.io/">Hugo</a>, theme by <a href="https://github.com/lutpul/hugo-theme-pinstripe">Pinstripe</a>.'
+  author: "Your Name"
+  license: CC BY-NC-SA 4.0
+  licenseURL: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh
+  aiPolicy: '本博客所有文章，拒绝且严禁任何商业机构、开源项目及自动化爬虫将其用于任何 AI 模型的训练、微调或作为检索增强生成的外部知识库。'
+  email: you@example.com
+  links:
+    - name: GitHub
+      url: https://github.com/you
+    - name: Mastodon
+      url: https://mastodon.social/@you
+      rel: me
+
+pagination:
+  pagerSize: 10
+
+markup:
+  goldmark:
+    extensions:
+      passthrough:
+        enable: true
+        delimiters:
+          inline:
+            - ["$", "$"]
+            - ['\(', '\)']
+          block:
+            - ["$$", "$$"]
+            - ['\[', '\]']
+
+mediaTypes:
+  application/xml:
+    suffixes: [xml, xsl]

@@ -1,0 +1,6 @@
+<div class="head">
+  {{- with site.Params.avatar }}
+  <img src="{{ . | relURL }}" alt="" width="32" height="32" class="avatar">
+  {{- end }}
+  <h1>{{ site.Title }}{{ with site.Params.description }}<small><p>{{ . }}</p></small>{{ end }}</h1>
+</div>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{{- $lang := .Params.pagelang | default (site.Language.Locale | default site.Language.Lang) -}}
+{{- $dir := .Params.dir | default "ltr" -}}
+<html lang="{{ $lang }}" dir="{{ $dir }}">
+<head>
+{{ partial "head.html" . }}
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar"><div class="stripe"></div><div class="title">{{ block "window-title" . }}{{ site.Title }}{{ end }}</div><div class="stripe"></div></div>
+    <div class="frame">
+      {{- if not .IsHome }}
+      <div class="strip tools{{ if .IsPage }} typed{{ end }}">{{ partial "crumbs.html" . }}{{ if .IsPage }}{{ partial "type-controls.html" . }}{{ end }}</div>
+      {{- end }}
+{{ block "main" . }}{{ end }}
+      {{ partial "nav.html" . }}
+      <div class="statusbar">
+{{ block "status" . }}<span>{{ site.Title }}</span>{{ end }}
+      </div>
+    </div>
+  </div>
+  {{ partial "foot.html" . }}
+  {{- with resources.Get "js/type.js" }}
+  {{- $js := . | minify | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" defer></script>
+  {{- end }}
+  {{- with resources.Get "js/copy.js" }}
+  {{- $js := . | minify | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" defer></script>
+  {{- end }}
+</body>
+</html>
